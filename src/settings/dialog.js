@@ -1,4 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-undef */
+/* eslint-disable office-addins/no-office-initialize */
+/* eslint-disable prettier/prettier */
 (function(){
+    // eslint-disable-next-line prettier/prettier
     'use strict';
   
     // The Office initialize function must be run each time a new page is loaded.
@@ -89,7 +94,7 @@
       if (!url) {
         url = window.location.href;
       }
-      name = name.replace(/[\[\]]/g, "\\$&");
+      name = name.replace(/[\\[\]]/g, "\\$&");
       const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
         results = regex.exec(url);
       if (!results) return null;
