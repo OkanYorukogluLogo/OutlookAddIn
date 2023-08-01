@@ -3,7 +3,6 @@
 const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-
 const urlDev = "https://localhost:3000/";
 const urlProd = "https://www.contoso.com/"; // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
 
@@ -13,13 +12,15 @@ async function getHttpsOptions() {
 }
 
 module.exports = async (env, options) => {
+  const buildType = options.mode === "production" ? "prod" : "dev"; // options değişkenini burada tanımlayın
   const dev = options.mode === "development";
   const config = {
     devtool: "source-map",
     entry: {
       polyfill: ["core-js/stable", "regenerator-runtime/runtime"],
-      taskpane: ["./src/taskpane/taskpane.js", "./src/taskpane/taskpane.html"],
+      taskpane: "./src/taskpane/taskpane.js",
       commands: "./src/commands/commands.js",
+      dialog: "./src/settings/dialog.js",
     },
     output: {
       clean: true,
@@ -62,12 +63,20 @@ module.exports = async (env, options) => {
       new CopyWebpackPlugin({
         patterns: [
           {
+            from: "./src/taskpane/taskpane.css",
+            to: "taskpane.css",
+          },
+          {
+            from: "./src/settings/dialog.css",
+            to: "dialog.css",
+          },
+          {
             from: "assets/*",
             to: "assets/[name][ext][query]",
           },
           {
             from: "manifest*.xml",
-            to: "[name]" + "[ext]",
+            to: "[name]." + buildType + "[ext]",
             transform(content) {
               if (dev) {
                 return content;
@@ -83,6 +92,11 @@ module.exports = async (env, options) => {
         template: "./src/commands/commands.html",
         chunks: ["polyfill", "commands"],
       }),
+      new HtmlWebpackPlugin({
+        filename: "dialog.html",
+        template: "./src/settings/dialog.html",
+        chunks: ["polyfill", "dialog"]
+      })
     ],
     devServer: {
       headers: {
